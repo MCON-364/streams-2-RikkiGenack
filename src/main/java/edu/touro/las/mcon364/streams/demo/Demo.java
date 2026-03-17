@@ -1,6 +1,7 @@
 package edu.touro.las.mcon364.streams.demo;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.*;
 
 public class Demo {
@@ -119,8 +120,14 @@ public class Demo {
      *     CS101=4
      */
     static Optional<Map.Entry<String, Long>> mostPopularCourse(List<Student> students) {
-        // TODO: implement using flatMap + groupingBy + counting, then find the max
-        return Optional.empty();
+             return students.stream()
+                    .flatMap(student -> student.enrolledCourses().stream())
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                    .entrySet()
+                    .stream()
+                    .max(Map.Entry.comparingByValue());
+        }
+
     }
 
     /**
