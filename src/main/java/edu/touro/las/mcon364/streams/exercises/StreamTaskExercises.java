@@ -17,7 +17,9 @@ public class StreamTaskExercises {
      * Return the descriptions of all HIGH priority tasks in encounter order.
      */
     public List<String> highPriorityDescriptions(List<Task> tasks) {
-        throw new UnsupportedOperationException("TODO");
+
+        return tasks.stream().filter(task->task.priority()==Priority.HIGH)
+                .map(Task::description).collect(Collectors.toList());
     }
 
     /**
@@ -25,7 +27,9 @@ public class StreamTaskExercises {
      * Return the number of tasks in each status.
      */
     public Map<Status, Long> countByStatus(List<Task> tasks) {
-        throw new UnsupportedOperationException("TODO");
+
+        return tasks.stream()
+                .collect(Collectors.groupingBy(Task::status, Collectors.counting()));
     }
 
     /**
@@ -34,6 +38,7 @@ public class StreamTaskExercises {
      */
     public Map<Priority, List<String>> descriptionsByPriority(List<Task> tasks) {
         throw new UnsupportedOperationException("TODO");
+      // return tasks.stream().collect(Collectors.groupingBy(Task::priority, ));
     }
 
     /**
@@ -42,7 +47,7 @@ public class StreamTaskExercises {
      * The map keys should be true and false.
      */
     public Map<Boolean, List<Task>> partitionByDone(List<Task> tasks) {
-        throw new UnsupportedOperationException("TODO");
+        return tasks.stream().collect(Collectors.partitioningBy(task->task.status()==Status.DONE));
     }
 
     /**
@@ -50,7 +55,9 @@ public class StreamTaskExercises {
      * Count how many tasks are DONE vs not DONE.
      */
     public Map<Boolean, Long> countDonePartition(List<Task> tasks) {
-        throw new UnsupportedOperationException("TODO");
+
+        return partitionByDone(tasks).entrySet().stream().collect(Collectors.toMap(t->t.getKey(), t-> (long) t.getValue().size()));
+
     }
 
     /**
