@@ -25,7 +25,17 @@ public class StudyTracker {
      * Throw IllegalArgumentException if name is null or blank.
      */
     public boolean addLearner(String name) {
-        throw new UnsupportedOperationException();
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Name cannot be null or blank");
+        }
+        var scoresFor = scoresFor(name);
+        if (scoresFor.isPresent()) {
+            return false;
+        }
+        scoresByLearner.put(name, new ArrayList<>());
+        return true;
+
+
     }
 
     /**
@@ -42,7 +52,18 @@ public class StudyTracker {
      * This operation should be undoable.
      */
     public boolean addScore(String name, int score) {
-        throw new UnsupportedOperationException();
+        if (score < 0 || score > 100) {
+            throw new IllegalArgumentException("Score must be between 0 and 100 inclusive");
+        }
+        var scoresFor = scoresFor(name);
+        if (scoresFor.isEmpty()) {
+            return false;
+        }
+        List<Integer> scores = scoresFor.get();
+        // Save undo step before modifying state
+        undoStack.push(() -> scoresByLearner.get(name).remove((Integer) score));
+        scores.add(score);
+        return true;
     }
 
     /**
@@ -54,7 +75,16 @@ public class StudyTracker {
      * - the learner has no scores
      */
     public Optional<Double> averageFor(String name) {
-        throw new UnsupportedOperationException();
+        var scoresFor = scoresFor(name);
+        if (scoresFor.isEmpty() || scoresFor.get().isEmpty()) {
+            return Optional.empty();
+        }
+        List<Integer> scores = scoresFor.get();
+        double average = scores.stream()
+                .mapToInt(Integer::intValue)
+                .average()
+                .orElse(0.0);
+        return Optional.of(average);
     }
 
     /**
@@ -70,7 +100,21 @@ public class StudyTracker {
      * Return Optional.empty() when no average exists.
      */
     public Optional<String> letterBandFor(String name) {
-        throw new UnsupportedOperationException();
+        Optional<Double> averageOpt = averageFor(name);
+        if (averageOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        double average = averageOpt.get();
+        int band = (int) average / 10;
+        String grade = switch (band) {
+            case 10, 9 -> "A";
+            case 8 -> "B";
+            case 7 -> "C";
+            case 6 -> "D";
+            default -> "F";
+        };
+
+        return Optional.of(grade);
     }
 
     /**
@@ -81,8 +125,11 @@ public class StudyTracker {
      * Return false if there is nothing to undo.
      */
     public boolean undoLastChange() {
-        throw new UnsupportedOperationException();
+        if (undoStack.isEmpty()) {
+            return false;
+        }
+        UndoStep step = undoStack.pop();
+        step.undo();
+        return true;
     }
-
-
 }

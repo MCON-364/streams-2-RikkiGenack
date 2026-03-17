@@ -13,7 +13,7 @@ public class FunctionalWarmup {
      * Return a Supplier that gives the current month number (1-12).
      */
     public static Supplier<Integer> currentMonthSupplier() {
-        throw new UnsupportedOperationException();
+        return () -> LocalDate.now().getMonthValue();
     }
 
     /**
@@ -22,7 +22,7 @@ public class FunctionalWarmup {
      * has more than 5 characters.
      */
     public static Predicate<String> longerThanFive() {
-        throw new UnsupportedOperationException();
+        return s -> s.length() > 5;
     }
 
     /**
@@ -34,7 +34,9 @@ public class FunctionalWarmup {
      * Prefer chaining smaller predicates.
      */
     public static Predicate<Integer> positiveAndEven() {
-        throw new UnsupportedOperationException();
+        Predicate<Integer> isPositive = n -> n > 0;
+        Predicate<Integer> isEven = n -> n % 2 == 0;
+        return isPositive.and(isEven);
     }
 
     /**
@@ -48,7 +50,13 @@ public class FunctionalWarmup {
      *
      */
     public static Function<String, Integer> wordCounter() {
-        throw new UnsupportedOperationException();
+        return s -> {
+            String trimmed = s.trim();
+            if (trimmed.isEmpty()) {
+                return 0;
+            }
+            return trimmed.split("\\s+").length;
+        };
     }
 
     /**
@@ -63,6 +71,10 @@ public class FunctionalWarmup {
      * ["  math ", "", " java", "  "] -> ["MATH", "JAVA"]
      */
     public static List<String> cleanLabels(List<String> labels) {
-        throw new UnsupportedOperationException();
+        return labels.stream()
+                .filter(s -> !s.isBlank())
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .toList();
     }
 }
